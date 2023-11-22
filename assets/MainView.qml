@@ -39,9 +39,7 @@ Item {
     property bool displayUpperArea: false
     property string guideString: partial ? stringSheet.aPlus_487 : stringSheet.screensaver_2
     property bool guideCompleted: false
-
-    // This property is used to load the advanced screen saver on the next loop
-    property bool loadAdvancedNext: false
+    property int normalCount: 0
 
     property alias screenSaver: loader.item
     property alias oledFullScreenSaverTimer: oledFullScreenSaverTimer
@@ -117,10 +115,12 @@ Item {
 
         function reload() {
             active = false;
-            if (root.loadAdvancedNext) {
+            if (root.normalCount === 3) {
                 sourceComponent = advancedScreenSaver;
+                root.normalCount = 0;
             } else {
                 sourceComponent = normalScreenSaver;
+                root.normalCount++;
             }
             active = true;
         }
@@ -226,7 +226,6 @@ Item {
             isPartial: root.partial
             guideString: root.guideString
             onLooped: {
-                root.loadAdvancedNext = true; // Set to load advanced screensaver next
                 loader.reload();
             }
         }
@@ -251,7 +250,6 @@ Item {
             isPartial: root.partial
             guideString: root.guideString
             onLooped: {
-                root.loadAdvancedNext = false; // Set to load normal screensaver next
                 loader.reload();
             }
         }

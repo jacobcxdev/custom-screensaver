@@ -20,6 +20,8 @@ Item {
 
     property int particle_life: (liteMode === true)? 4000 : 5000
     property int particle_life_variation: 1000
+    property int particle_count: Math.floor(Math.random() * (2000 - 100 + 1)) + 100
+    property int particle_rate: Math.floor(particle_count * 0.625)
 
     property bool playing: false
     property bool liteMode: false
@@ -109,8 +111,8 @@ Item {
 
         lifeSpan: particle_life
         lifeSpanVariation: particle_life_variation
-        emitRate: 500
-        maximumEmitted: 800
+        emitRate: particle_rate
+        maximumEmitted: particle_count
 
         size: 1
         velocity: AngleDirection{magnitude: 7; magnitudeVariation: 3; angleVariation: 360}
@@ -129,8 +131,8 @@ Item {
 
         lifeSpan: particle_life
         lifeSpanVariation: particle_life_variation
-        emitRate: 500
-        maximumEmitted: 800
+        emitRate: particle_rate
+        maximumEmitted: particle_count
 
         size: 1
         velocity: AngleDirection{magnitude: 7; magnitudeVariation: 3; angleVariation: 360}
@@ -149,8 +151,8 @@ Item {
 
         lifeSpan: particle_life
         lifeSpanVariation: particle_life_variation
-        emitRate: 500
-        maximumEmitted: 800
+        emitRate: particle_rate
+        maximumEmitted: particle_count
 
         size: 1
         velocity: AngleDirection{magnitude: 7; magnitudeVariation: 3; angleVariation: 360}

@@ -1,4 +1,4 @@
-/* @@@LICENSE
+﻿/* @@@LICENSE
 *
 *      Copyright (c) 2019 LG Electronics, Inc.
 *
@@ -237,7 +237,7 @@ Item {
 
                 visible: true
                 color: "#808080"
-                text: interfaces.weather.weatherText + " | " + interfaces.weather.getTemperature() + "˚"
+                text: toTitleCase(interfaces.weather.weatherText) + " | " + interfaces.weather.getTemperature() + "˚"
                 font.family: fontManager.smart_Regular.family
                 font.weight: fontManager.smart_Regular.weight
                 font.pixelSize: 33
@@ -351,5 +351,11 @@ Item {
         }
 
         return day + suffix;
+    }
+
+    function toTitleCase(str) {
+        return str.replace(/\w\S*/g, function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
     }
 }
