@@ -1,4 +1,4 @@
-﻿/* @@@LICENSE
+/* @@@LICENSE
 *
 *      Copyright (c) 2019 LG Electronics, Inc.
 *
@@ -237,7 +237,7 @@ Item {
 
                 visible: true
                 color: "#808080"
-                text: interfaces.weather.weatherText + " " + interfaces.weather.getTemperature() + "˚"
+                text: interfaces.weather.weatherText + " | " + interfaces.weather.getTemperature() + "˚"
                 font.family: fontManager.smart_Regular.family
                 font.weight: fontManager.smart_Regular.weight
                 font.pixelSize: 33
@@ -320,6 +320,12 @@ Item {
 
             if (!timeManager.isFactoryTime && timeManager.broadcastUtcTime) {
                 currentTime = timeManager.dateTimeFormat(timeManager.broadcastUtcTime, "date", "dmy", "full");
+                
+                // Extract the day number
+                var day = parseInt(currentTime.split(' ')[0]);
+
+                // Replace the day number with the ordinal version
+                currentTime = currentTime.replace(day.toString(), ordinalSuffix(day));
             } else {
                 currentTime = ""
             }
@@ -330,5 +336,20 @@ Item {
         }
 
         timeUpdated = true;
+    }
+
+    function ordinalSuffix(day) {
+        var lastDigit = day % 10;
+        var suffix = "th";  // Default suffix
+
+        if (lastDigit === 1 && day !== 11) {
+            suffix = "st";
+        } else if (lastDigit === 2 && day !== 12) {
+            suffix = "nd";
+        } else if (lastDigit === 3 && day !== 13) {
+            suffix = "rd";
+        }
+
+        return day + suffix;
     }
 }
