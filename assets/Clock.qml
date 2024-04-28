@@ -109,8 +109,8 @@ Item {
 
             id: clockShape
 
-            anchors.top: !displayUpperArea ? parent.top : undefined
-            anchors.bottom: displayUpperArea ? parent.bottom : undefined
+            anchors.top: parent.top
+            anchors.bottom: undefined
             anchors.horizontalCenter: parent.horizontalCenter
 
             width: 420
@@ -183,10 +183,10 @@ Item {
 
             width: parent.width - 132
             height: 40
-            anchors.top: !displayUpperArea ? clockShape.bottom : undefined
-            anchors.topMargin: !displayUpperArea ? 100 : 0
-            anchors.bottom: displayUpperArea ? clockShape.top : undefined
-            anchors.bottomMargin: displayUpperArea ? 100 : 0
+            anchors.top: clockShape.bottom
+            anchors.topMargin: 100
+            anchors.bottom: undefined
+            anchors.bottomMargin: 0
             anchors.horizontalCenter: parent.horizontalCenter
 
             Text {
@@ -210,10 +210,10 @@ Item {
 
             width: parent.width - 132
             height: 86
-            anchors.top: !displayUpperArea ? clockShape.bottom : undefined
-            anchors.topMargin: !displayUpperArea ? 100 : 0
-            anchors.bottom: displayUpperArea ? clockShape.top : undefined
-            anchors.bottomMargin: displayUpperArea ? 100 : 0
+            anchors.top: clockShape.bottom
+            anchors.topMargin: 100
+            anchors.bottom: undefined
+            anchors.bottomMargin: 0
             anchors.horizontalCenter: parent.horizontalCenter
             opacity: 0
 

@@ -5,7 +5,7 @@ set -e -o pipefail
 mount_file() {
     FILE=$1
     MOUNT_TARGET="/usr/palm/applications/com.webos.app.screensaver/qml/UserInterfaceLayer/Containers/$FILE"
-    QML_PATH="$(dirname "$(realpath "$0")")/$FILE"
+    QML_PATH="/home/root/custom_screensaver/$FILE"
 
     if [[ ! -f "$MOUNT_TARGET" ]]; then
         echo "[-] Target file does not exist: $MOUNT_TARGET" >&2

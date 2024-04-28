@@ -35,7 +35,6 @@ FocusScope {
     property bool isWeather: interfaces.weather.isWeatherReady
     property bool hasTime: !timeManager.isFactoryTime && timeManager.broadcastUtcTime !== null
     property bool finalCondition: isAdvancedScreenSaverReady && isWeather && hasTime
-    property bool displayUpperArea: false
     property string guideString: partial ? stringSheet.aPlus_487 : stringSheet.screensaver_2
     property bool guideCompleted: false
     property int normalCount: 0
@@ -288,7 +287,6 @@ FocusScope {
             isPartial: root.partial
             guideString: root.guideString
             onLooped: {
-                displayUpperArea = !displayUpperArea
                 loader.reload();
             }
         }
