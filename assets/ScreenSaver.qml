@@ -14,9 +14,12 @@ import QtQuick 2.12
 import QtQuick.Particles 2.0
 
 Item {
+
     id: screensaver
 
     readonly property url particle_image: Qt.resolvedUrl("../Components/images/particle_img.png")
+    readonly property int fadeInOutDuration: 3500
+    readonly property int animationDuration: 7500
 
     property int particle_life: (liteMode === true)? 4000 : 5000
     property int particle_life_variation: 1000
@@ -51,7 +54,9 @@ Item {
 
         id: animation_timer
 
-        interval: 7500
+        objectName: "screenSaverAnimationTimer"
+
+        interval: animationDuration
         onTriggered: {
             looped();
         }
@@ -193,7 +198,7 @@ Item {
             to: 1.0
             running: false
             easing.type: Easing.OutQuad
-            duration: 3500
+            duration: fadeInOutDuration
 
             onStopped: {
                 fadeOut();
@@ -208,7 +213,7 @@ Item {
             to: 0.0
             running: false
             easing.type: Easing.OutQuad
-            duration: 3500
+            duration: fadeInOutDuration
 
             onStopped: {}
         }

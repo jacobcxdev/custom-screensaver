@@ -17,6 +17,11 @@ Item {
 
     id : root
 
+    readonly property int displayDurationTime: 5000
+    readonly property int mainFadeInOutTime: 3000
+    readonly property int guideTextFadeInTime: 3000
+    readonly property int infoFadeInOutTime: 500
+
     property int hours
     property int minutes
     property int seconds
@@ -50,11 +55,11 @@ Item {
             properties: "opacity"
             from: 1
             to: 0
-            duration: 3000
+            duration: mainFadeInOutTime
         }
 
         PauseAnimation {
-            duration: systemProperties.displayDurationForClock
+            duration: displayDurationTime
         }
 
         PropertyAnimation {
@@ -62,7 +67,7 @@ Item {
             properties: "opacity"
             from: 1
             to: 0
-            duration: 500
+            duration: infoFadeInOutTime
         }
 
         PropertyAnimation {
@@ -70,11 +75,11 @@ Item {
             properties: "opacity"
             from: 0
             to: 1
-            duration: 500
+            duration: infoFadeInOutTime
         }
 
         PauseAnimation {
-            duration: systemProperties.displayDurationForClock
+            duration: displayDurationTime
         }
 
         PropertyAnimation {
@@ -82,9 +87,8 @@ Item {
             properties: "opacity"
             from: 0
             to: 1
-            duration: 3000
+            duration: mainFadeInOutTime
         }
-
 
         onRunningChanged: {
             if (!running) {
@@ -97,7 +101,7 @@ Item {
 
         id: clockMain
 
-        width: childrenRect.width
+        width: parent.width
         height: childrenRect.height
         anchors.centerIn: parent
 
@@ -273,7 +277,7 @@ Item {
 
                 visible: true
                 color: "#808080"
-                text: String("Welcome to The Tower™️")
+                text: String("Welcome to The Tower")
                 font.family: fontManager.smart_SemiBold.family
                 font.weight: fontManager.smart_SemiBold.weight
                 font.pixelSize: 16
@@ -296,7 +300,7 @@ Item {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            interfaces.weather.getWeatherInfo();
+            interfaces.weather.getCurrentWeather();
         }
     }
 

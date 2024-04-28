@@ -13,11 +13,10 @@
 import QtQuick 2.12
 import "../"
 import "../../AppInitializer"
-import "../../Utilities/AplusUtils.js" as AplusUtils
 import "../../Utilities/ScreenSaverUtils.js" as ScreenSaverUtils
 import "../../Constants.js" as C
 
-Item {
+FocusScope {
 
     id: root
 
@@ -42,6 +41,7 @@ Item {
     property int normalCount: 0
 
     property alias screenSaver: loader.item
+    property alias loader: loader
     property alias oledFullScreenSaverTimer: oledFullScreenSaverTimer
 
     objectName: "mainView"
@@ -59,10 +59,10 @@ Item {
                  + ", isWeather: " + isWeather
                  + ", hasTime: " + hasTime);
         if (state === C.MODE_FULL && checkCompleted) {
-            if (finalCondition && partial === false) {
-                loader.sourceComponent = advancedScreenSaver;
+            if (isAvaialbeAdvancedScreenSaver()) {
+                loader.setComp(advancedScreenSaver);
             } else {
-                loader.sourceComponent = normalScreenSaver;
+                loader.setComp(normalScreenSaver);
             }
         }
     }
@@ -75,7 +75,36 @@ Item {
                  + ", isWeather: " + isWeather
                  + ", hasTime: " + hasTime);
         if (state === C.MODE_FULL && checkCompleted && !finalCondition) {
-            loader.sourceComponent = normalScreenSaver;
+            loader.setComp(normalScreenSaver);
+        }
+    }
+
+    Timer {
+
+        id: inputLaunchTimer
+
+        interval: 120000
+
+        onTriggered: {
+            if (rootWindow.active) {
+                printLog("[STATE] inputLaunchTimer onTriggered " + root.state);
+                interfaces.application.launchApp(systemProperties.lastInput, {"id":"storeDemoLaunch","storeDemoLaunch":"screenSaver"})
+            }
+        }
+    }
+
+    Timer {
+
+        id: oledFullScreenSaverTimer
+
+        running: ScreenSaverUtils.isRunningOledTimer(systemProperties.isOLEDScreen, root.state)
+
+        interval: 30*60*1000 // 30 min
+
+        onTriggered: {
+            printLog("[STATE] oledFullScreenSaverTimer onTriggered " + root.state);
+            root.state = C.MODE_FULL;
+            pigViews.started = false;
         }
     }
 
@@ -87,15 +116,32 @@ Item {
 
         onTriggered: {
             if (!guideCompleted && loader.item && loader.item.visible && root.state === C.MODE_FULL) {
-                interfaces.audioguide.readText(stringSheet.screensaver_3 + " \n " + guideString, true);
-                guideCompleted = true;
+                if (loader.sourceComponent === normalScreenSaver || loader.sourceComponent === advancedScreenSaver) {
+                    interfaces.audioguide.readText(stringSheet.screensaver_3 + " \n " + guideString, true);
+                    guideCompleted = true;
+                }
             }
         }
+    }
+
+    Rectangle {
+
+        id: mainBackground
+
+        anchors.fill: parent
+        color: "black"
+        visible: false
+        enabled: false
     }
 
     Loader {
 
         id: loader
+
+        property int restScreenSaverCount: 0
+        property var previousComp
+
+        focus: true
 
         onLoaded: {
             printLog("[UI] LOADED");
@@ -113,13 +159,33 @@ Item {
             }
         }
 
+        function setComp (comp) {
+            if (comp && !loader.sourceComponent) {
+                previousComp = comp;
+            } else if (comp && (loader.sourceComponent === normalScreenSaver || loader.sourceComponent === advancedScreenSaver)) {
+                previousComp = loader.sourceComponent;
+            } else if (comp === undefined) {
+                previousComp = null;
+            }
+
+            loader.sourceComponent = comp;
+        }
+
+        function changeToPreviousComp () {
+            if (previousComp === advancedScreenSaver && isAvaialbeAdvancedScreenSaver()) {
+                setComp(advancedScreenSaver);
+            } else {
+                setComp(normalScreenSaver);
+            }
+        }
+
         function reload() {
             active = false;
             if (root.normalCount === 3) {
-                sourceComponent = advancedScreenSaver;
+                setComp(advancedScreenSaver);
                 root.normalCount = 0;
             } else {
-                sourceComponent = normalScreenSaver;
+                setComp(normalScreenSaver);
                 root.normalCount++;
             }
             active = true;
@@ -178,35 +244,6 @@ Item {
         }
     }
 
-    Timer {
-
-        id: inputLaunchTimer
-
-        interval: 120000
-
-        onTriggered: {
-            if (rootWindow.active) {
-                printLog("[STATE] inputLaunchTimer onTriggered " + root.state);
-                interfaces.application.launchApp(systemProperties.lastInput, {"id":"storeDemoLaunch","storeDemoLaunch":"screenSaver"})
-            }
-        }
-    }
-
-    Timer {
-
-        id: oledFullScreenSaverTimer
-
-        running: ScreenSaverUtils.isRunningOledTimer(systemProperties.isOLEDScreen, root.state)
-
-        interval: 30*60*1000 // 30 min
-
-        onTriggered: {
-            printLog("[STATE] oledFullScreenSaverTimer onTriggered " + root.state);
-            root.state = C.MODE_FULL;
-            pigViews.started = false;
-        }
-    }
-
     Component {
 
         id: normalScreenSaver
@@ -214,6 +251,7 @@ Item {
         ScreenSaver {
 
             objectName: "normalScreenSaver"
+
             width: getScreenSaverWidth()
             height: getScreenSaverHeight()
 
@@ -250,6 +288,7 @@ Item {
             isPartial: root.partial
             guideString: root.guideString
             onLooped: {
+                displayUpperArea = !displayUpperArea
                 loader.reload();
             }
         }
@@ -261,18 +300,18 @@ Item {
         switch(state) {
         case C.MODE_FULL:
             pigViews.visible = false;
-            rootWindow.color = "black";
+            enableBackground();
             checkAdvancedScreenSaver();
             break;
         case C.MODE_PIG:
             pigViews.visible = true;
-            rootWindow.color = "black";
-            loader.sourceComponent = undefined;
+            enableBackground();
+            loader.setComp();
             break;
         case C.MODE_NONE:
             pigViews.visible = false;
-            rootWindow.color = "black";
-            loader.sourceComponent = undefined;
+            enableBackground();
+            loader.setComp();
             break;
         }
     }
@@ -293,7 +332,7 @@ Item {
         //Check for rollableTV
         if (systemProperties.isRollable) {
             interfaces.application.getViewState(function(response) {
-                root.partial = AplusUtils.getPartial(response);
+                root.partial = ScreenSaverUtils.getPartial(response);
                 start();
             });
         } else {
@@ -337,7 +376,7 @@ Item {
     }
 
     function checkAdvancedScreenSaver () {
-        interfaces.weather.getDeviceAuthenticationStatus();
+        interfaces.weather.getLocationInfoByPreference();
         timeManager.startToUpdateBroadcastTime();
     }
 
@@ -374,5 +413,14 @@ Item {
     function resetGuide () {
         guideDelayTimer.stop();
         guideCompleted = false;
+    }
+
+    function isAvaialbeAdvancedScreenSaver () {
+        return finalCondition && checkCompleted && !partial;
+    }
+
+    function enableBackground () {
+        mainBackground.visible = true;
+        rootWindow.color = "black";
     }
 }
